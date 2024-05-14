@@ -1,3 +1,6 @@
+/* Creates a Base Converter between 2-10
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -6,10 +9,6 @@
 
 typedef unsigned long max_size;
 
-/* Analyzes the command line from the user, ensuring all inputs are valid.
- * This includes Base 1 - 16
- *
- */
 void checkCommandLine(int argc, char * argv[]);
 int numDigits(int value, int base);
 max_size tobase10(char * string, int from_base);
@@ -21,21 +20,7 @@ int no_char(char * string);
 void from_10_to_base(int * new, max_size start, int new_base);
 void print_new_base(int * new_base, int digits);
 void checkNull(void * ptr);
-max_size topower(int from_base, int exp);
 
-/* Command Line Argument Example
- * ./a.out 123 10 5
- * convert 123 from base 10 to base 5
- *
- * argc = 4
- * argv[1] = 123
- *
- * argv[1][0]
- *
- * argv[2] = 10
- * argv[3] = 5
- *
- */
 int main(int argc, char *argv[]){
 	
 	checkCommandLine(argc,argv);
@@ -56,16 +41,10 @@ int main(int argc, char *argv[]){
 
 }
 
-max_size topower(int from_base, int exp){
-	max_size sum = 1;
-	int i;
-	for (i = 0; i < exp; i++){
-		sum = sum * from_base;
-	}
-
-	return sum;
-}
-
+/* Checks if malloc worked
+ *
+ * ptr	value to check if null
+ */
 void checkNull(void * ptr){
 	if (ptr == NULL){
 		printf("Malloc Failed\n");
@@ -73,11 +52,24 @@ void checkNull(void * ptr){
 	}
 }
 
+/* Calculates the number of digits in a base 10 value
+ * when converted to another base
+ *
+ * value	value to check
+ *
+ * base		base to convert to
+ *
+ * returns	number of digits in that base. used for 
+ * 		Malloc later
+ */
 int num_digits(max_size value, int base){
 	return 1 + floor(log(value) / log(base));	
 }
 
-
+/* Capitalizes all letters in a string
+ *
+ * string	string to capitalize
+ */
 void string_upper(char * string){
 	int i = 0;
 	while (string[i] != '\0'){
@@ -87,7 +79,10 @@ void string_upper(char * string){
 }
 
 /* Assumes the value is already verified to be either
- * a ascii number or letter.
+ * a ascii number or letter. Converts a char to the 
+ * appropriate decimal value
+ *
+ * value	value to convert
  */
 unsigned int ascii2digit(char value){
 	if ((value >= 48) && (value <= 57)){
@@ -97,7 +92,15 @@ unsigned int ascii2digit(char value){
 	}
 }
 
-
+/* converts a value to base 10
+ *
+ * string	value to convert to base 10
+ *
+ * from base	starting base
+ *
+ * returns	value that is in base 10
+ *
+ */
 max_size tobase10(char * string, int from_base){
 	int i = 0, exp = strlen(string) - 1;
 	max_size sum = 0;
@@ -118,6 +121,15 @@ max_size tobase10(char * string, int from_base){
 	return sum;
 }
 
+/* Error detection used by checkCommandLine. Determines if
+ * the inputted value is the base specified by the user.
+ *
+ * string	argument to analyze
+ *
+ * from_base	base that the argument should be
+ *
+ * return	1 if valid base, 0 if not
+ */
 int valid_base(char * string, int from_base){
 	int i = 0;
 	while (string[i] != '\0'){
@@ -129,6 +141,15 @@ int valid_base(char * string, int from_base){
 	return 1;
 }
 
+/* Error detection used by checkCommandLine. Determines
+ * if input string has none numerical values. Used to check
+ * which base to convert to
+ *
+ * string	argument to analyze
+ *
+ * return	returns 1 if string has only numbers. Returns 0 if
+ * 		another char is found.
+ */
 int no_char(char * string){
 	int i =0;
 
@@ -141,11 +162,15 @@ int no_char(char * string){
 	return 1;
 }
 
+/* Analyzes the user input for errors
+ * argc		number of arguments form the commandline
+ * argv		string of each argument
+ */
 void checkCommandLine(int argc, char * argv[]){
 	string_upper(argv[1]);
 
 	if (!strcmp(argv[1],"-HELP")){	
-		printf("Command Line should take the form:\n./convert <value> <base_from> <base_to>\nWhere base_from and base_to are between 1 and 16\n");
+		printf("Command Line should take the form:\n./convert <value> <base_from> <base_to>\nWhere base_from and base_to are between 2 and 16\n");
 		exit(0);
 	} else if (argc != 4){
 		printf("Improper Syntax, use ./convert -help for proper usage\n");
@@ -154,7 +179,7 @@ void checkCommandLine(int argc, char * argv[]){
 		printf("Invalid Bases\n");
 		exit(0);
 	} else if ((atoi(argv[2]) > 16) || (atoi(argv[2]) < 2) || (atoi(argv[3]) > 16) || (atoi(argv[3]) < 2)){
-		printf("Can only convert between bases 1-16\n");
+		printf("Can only convert between bases 2-16\n");
 		exit(0);
 	} else if (!valid_base(argv[1], atoi(argv[2]))){
 		printf("Value not base %s\n", argv[2]);
@@ -162,6 +187,13 @@ void checkCommandLine(int argc, char * argv[]){
 	}
 }
 
+/* converts a base 10 value into a new base, where each digit is
+ * stored in an integer array.
+ *
+ * new		array that stores the new base
+ * start	the base 10 value
+ * new_base	the desired base to convert to
+ */
 void from_10_to_base(int * new, max_size start, int new_base){
 	int i = 0;
 	do {
@@ -191,6 +223,10 @@ char hex_digit(int value){
 	}
 }
 
+/* prints the array of each digit created in from_10_to_base
+ * new_base	the digit array in the desired base
+ * digits	number of digits
+ */
 void print_new_base(int * new_base, int digits){
 	int i = 0;	
 	for (i=digits-1; i >= 0; i--){
